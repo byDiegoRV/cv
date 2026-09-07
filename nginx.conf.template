@@ -1,0 +1,16 @@
+server {
+    listen PORT_PLACEHOLDER;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(?:jpg|jpeg|png|gif|ico|svg)$ {
+        expires 7d;
+        add_header Cache-Control "public";
+    }
+}
