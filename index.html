@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diego Roldán Vivanco — CV</title>
+<meta name="description" content="Curriculum de Diego Noé Roldán Vivanco, estudiante de Ingeniería de Software.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0f1219;
+    --panel: #151926;
+    --panel-alt: #1b2032;
+    --border: #262c40;
+    --text: #dbdfea;
+    --text-dim: #7d8499;
+    --text-dimmer: #565d75;
+    --amber: #e8a850;
+    --violet: #9d8cff;
+    --teal: #5fc9b8;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  a{color:var(--violet);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  a:focus-visible, button:focus-visible, .file:focus-visible{
+    outline:2px solid var(--teal);
+    outline-offset:2px;
+  }
+
+  /* ---------- Top chrome bar ---------- */
+  .titlebar{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:10px 16px;
+    background:var(--panel);
+    border-bottom:1px solid var(--border);
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  .dots{display:flex;gap:6px;flex-shrink:0;}
+  .dots span{width:11px;height:11px;border-radius:50%;display:block;}
+  .dots span:nth-child(1){background:#e8686a;}
+  .dots span:nth-child(2){background:#e8c150;}
+  .dots span:nth-child(3){background:#5fc98a;}
+  .titlebar-path{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--text-dim);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .titlebar-path b{color:var(--text);font-weight:600;}
+  .menu-toggle{
+    margin-left:auto;
+    display:none;
+    background:var(--panel-alt);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:4px;
+    cursor:pointer;
+  }
+
+  /* ---------- Layout ---------- */
+  .workspace{
+    display:grid;
+    grid-template-columns:250px 1fr;
+    min-height:calc(100vh - 41px);
+  }
+  .explorer{
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    padding:18px 0;
+  }
+  .explorer-label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.04em;
+    color:var(--text-dimmer);
+    padding:0 18px 10px;
+  }
+  .tree{list-style:none;margin:0;padding:0;}
+  .tree .folder-name{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--text-dim);
+    padding:6px 18px;
+  }
+  .tree .sub{padding-left:14px;}
+  .file{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    width:100%;
+    background:none;
+    border:none;
+    text-align:left;
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--text-dim);
+    padding:7px 18px;
+    cursor:pointer;
+    border-left:2px solid transparent;
+  }
+  .file:hover{color:var(--text);background:var(--panel-alt);}
+  .file.active{
+    color:var(--text);
+    background:var(--panel-alt);
+    border-left:2px solid var(--amber);
+  }
+  .file .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--text-dimmer);
+    flex-shrink:0;
+  }
+  .file.active .dot{background:var(--amber);}
+
+  .explorer-footer{
+    padding:16px 18px 0;
+    margin-top:14px;
+    border-top:1px solid var(--border);
+  }
+  .explorer-footer a{
+    display:block;
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--text-dim);
+    padding:4px 0;
+  }
+  .explorer-footer a:hover{color:var(--teal);text-decoration:none;}
+
+  /* ---------- Main pane ---------- */
+  .pane{
+    padding:40px clamp(20px,4vw,64px) 80px;
+    max-width:840px;
+  }
+  .breadcrumb{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--text-dimmer);
+    margin-bottom:26px;
+  }
+  .breadcrumb b{color:var(--text-dim);}
+
+  section.pane-section{display:none;}
+  section.pane-section.active{
+    display:block;
+    animation:fade-in .35s ease both;
+  }
+  @keyframes fade-in{
+    from{opacity:0;transform:translateY(6px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    section.pane-section.active{animation:none;}
+  }
+
+  h1{
+    font-family:var(--mono);
+    font-size:clamp(26px,4vw,34px);
+    font-weight:700;
+    margin:0 0 6px;
+    color:var(--text);
+  }
+  .role-line{
+    font-family:var(--mono);
+    font-size:15px;
+    color:var(--amber);
+    margin:0 0 24px;
+  }
+  .role-line span{color:var(--text-dimmer);}
+
+  .about-head{
+    display:flex;
+    align-items:flex-start;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .avatar-frame{
+    flex-shrink:0;
+    width:104px;
+    height:104px;
+    border-radius:10px;
+    padding:3px;
+    background:linear-gradient(160deg, var(--amber), var(--violet));
+  }
+  .avatar-frame img{
+    width:100%;
+    height:100%;
+    border-radius:8px;
+    object-fit:cover;
+    display:block;
+    background:var(--panel-alt);
+  }
+  @media (max-width:480px){
+    .avatar-frame{width:84px;height:84px;}
+  }
+
+  h2{
+    font-family:var(--mono);
+    font-size:20px;
+    font-weight:600;
+    color:var(--text);
+    margin:0 0 18px;
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  h2 small{
+    font-size:13px;
+    font-weight:400;
+    color:var(--text-dimmer);
+  }
+  p{
+    font-size:15.5px;
+    line-height:1.7;
+    color:var(--text);
+    max-width:62ch;
+    margin:0 0 16px;
+  }
+  .muted{color:var(--text-dim);}
+
+  .contact-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 22px;
+    margin-bottom:8px;
+  }
+  .contact-row a, .contact-row span{
+    font-family:var(--mono);
+    font-size:13.5px;
+    color:var(--text-dim);
+  }
+  .contact-row a:hover{color:var(--teal);}
+
+  /* skills.json block */
+  .json-block{
+    font-family:var(--mono);
+    font-size:14px;
+    line-height:1.85;
+    background:var(--panel-alt);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:20px 22px;
+    overflow-x:auto;
+  }
+  .json-key{color:var(--violet);}
+  .json-str{color:var(--teal);}
+  .json-punc{color:var(--text-dimmer);}
+
+  /* project / experience cards */
+  .entry{
+    border-left:2px solid var(--border);
+    padding:2px 0 26px 22px;
+    position:relative;
+    margin-left:2px;
+  }
+  .entry:last-child{padding-bottom:2px;}
+  .entry::before{
+    content:'';
+    position:absolute;
+    left:-5px;top:6px;
+    width:8px;height:8px;
+    border-radius:50%;
+    background:var(--amber);
+  }
+  .entry-head{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .entry-title{
+    font-family:var(--mono);
+    font-size:16px;
+    font-weight:600;
+    color:var(--text);
+  }
+  .entry-date{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--text-dimmer);
+  }
+  .entry-sub{
+    font-size:14px;
+    color:var(--text-dim);
+    margin:0 0 10px;
+  }
+  ul.feature-list{
+    margin:0 0 4px;
+    padding-left:18px;
+  }
+  ul.feature-list li{
+    font-size:14.5px;
+    line-height:1.75;
+    color:var(--text);
+    max-width:58ch;
+  }
+  .entry-links a{
+    font-family:var(--mono);
+    font-size:13px;
+  }
+
+  .tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .tag{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--teal);
+    background:rgba(95,201,184,0.08);
+    border:1px solid rgba(95,201,184,0.25);
+    padding:3px 9px;
+    border-radius:4px;
+  }
+
+  .lang-row{display:flex;gap:28px;margin-top:6px;}
+  .lang-item{font-family:var(--mono);font-size:13.5px;color:var(--text-dim);}
+  .lang-item b{color:var(--text);font-weight:600;}
+  .bar{
+    width:120px;height:5px;background:var(--panel-alt);
+    border:1px solid var(--border);border-radius:3px;
+    margin-top:6px;overflow:hidden;
+  }
+  .bar-fill{height:100%;background:var(--amber);}
+
+  footer.pane-footer{
+    margin-top:50px;
+    padding-top:20px;
+    border-top:1px solid var(--border);
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--text-dimmer);
+  }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width:760px){
+    .workspace{grid-template-columns:1fr;}
+    .menu-toggle{display:inline-block;}
+    .explorer{
+      position:fixed;
+      top:41px;left:0;right:0;bottom:0;
+      z-index:30;
+      overflow-y:auto;
+      transform:translateX(-100%);
+      transition:transform .25s ease;
+      width:80%;
+      max-width:300px;
+    }
+    .explorer.open{transform:translateX(0);box-shadow:8px 0 24px rgba(0,0,0,0.4);}
+    .pane{padding:28px 20px 60px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="titlebar">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="titlebar-path"><b>diego-roldan-vivanco</b><span class="muted"> — cv.dev</span></div>
+    <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="explorer">EXPLORER</button>
+  </div>
+
+  <div class="workspace">
+    <nav class="explorer" id="explorer">
+      <div class="explorer-label">EXPLORADOR — cv-diego/</div>
+      <ul class="tree">
+        <li><button class="file active" data-target="about"><span class="dot"></span>about.md</button></li>
+        <li><button class="file" data-target="skills"><span class="dot"></span>skills.json</button></li>
+        <li><div class="folder-name">▾ projects/</div></li>
+        <li class="sub"><button class="file" data-target="projects"><span class="dot"></span>devsolve.md</button></li>
+        <li class="sub"><button class="file" data-target="projects"><span class="dot"></span>reviewdata.md</button></li>
+        <li><button class="file" data-target="experience"><span class="dot"></span>experience.md</button></li>
+        <li><button class="file" data-target="education"><span class="dot"></span>education.md</button></li>
+        <li><button class="file" data-target="certifications"><span class="dot"></span>certifications.md</button></li>
+        <li><button class="file" data-target="contact"><span class="dot"></span>contact.md</button></li>
+      </ul>
+      <div class="explorer-footer">
+        <a href="https://github.com/byDiegoRV" target="_blank" rel="noopener">↗ github.com/byDiegoRV</a>
+        <a href="mailto:droldanvivanco@gmail.com">↗ droldanvivanco@gmail.com</a>
+      </div>
+    </nav>
+
+    <main class="pane">
+      <div class="breadcrumb"><b>cv-diego</b> / <span id="crumb">about.md</span></div>
+
+      <section class="pane-section active" id="about">
+        <div class="about-head">
+          <div class="avatar-frame">
+            <img src="profile.jpg" alt="Foto de Diego Noé Roldán Vivanco">
+          </div>
+          <div>
+            <h1>Diego Noé Roldán Vivanco</h1>
+            <p class="role-line">Estudiante de Ingeniería de Software <span>· Backend &amp; Frontend</span></p>
+            <div class="contact-row">
+              <span>📍 Córdoba, Veracruz, MX</span>
+              <a href="tel:+522712317929">271 231 7929</a>
+              <a href="mailto:droldanvivanco@gmail.com">droldanvivanco@gmail.com</a>
+              <a href="https://github.com/byDiegoRV" target="_blank" rel="noopener">github.com/byDiegoRV</a>
+            </div>
+          </div>
+        </div>
+
+        <h2 style="margin-top:34px;">Acerca de mí</h2>
+        <p>Estudiante de Ingeniería de Software en la Universidad Veracruzana, cursando actualmente el quinto semestre. Me interesa el desarrollo de software, en particular la creación de aplicaciones web y sistemas orientados a resolver problemas reales.</p>
+        <p>Durante mi formación he participado en proyectos de frontend y backend, trabajando en aplicaciones para el aprendizaje de programación y la detección de inconsistencias en datos. Busco seguir fortaleciendo mis conocimientos en desarrollo web, bases de datos, análisis de datos y buenas prácticas de ingeniería.</p>
+
+        <h2 style="margin-top:34px;">Perfil profesional</h2>
+        <p>Interesado en el desarrollo de aplicaciones web, backend, frontend y análisis de datos. He desarrollado proyectos propios como DevSolve y ReviewData, y cuento con conocimientos en Python, Java, Pandas, IoT y redes. Busco participar en proyectos tecnológicos que me permitan aplicar y ampliar mis conocimientos.</p>
+      </section>
+
+      <section class="pane-section" id="skills">
+        <h2>Habilidades <small>skills.json</small></h2>
+        <div class="json-block">
+          <span class="json-punc">{</span><br>
+          &nbsp;&nbsp;<span class="json-key">"desarrollo_software"</span><span class="json-punc">: [</span><span class="json-str">"Apps web"</span><span class="json-punc">, </span><span class="json-str">"Frontend"</span><span class="json-punc">, </span><span class="json-str">"Backend"</span><span class="json-punc">, </span><span class="json-str">"Diseño de sistemas"</span><span class="json-punc">],</span><br>
+          &nbsp;&nbsp;<span class="json-key">"programacion_y_datos"</span><span class="json-punc">: [</span><span class="json-str">"Python"</span><span class="json-punc">, </span><span class="json-str">"Java"</span><span class="json-punc">, </span><span class="json-str">"Pandas"</span><span class="json-punc">, </span><span class="json-str">"Análisis de datos"</span><span class="json-punc">],</span><br>
+          &nbsp;&nbsp;<span class="json-key">"areas_de_interes"</span><span class="json-punc">: [</span><span class="json-str">"Ing. de Software"</span><span class="json-punc">, </span><span class="json-str">"Desarrollo web"</span><span class="json-punc">, </span><span class="json-str">"IoT"</span><span class="json-punc">, </span><span class="json-str">"Redes"</span><span class="json-punc">, </span><span class="json-str">"Automatización"</span><span class="json-punc">],</span><br>
+          &nbsp;&nbsp;<span class="json-key">"habilidades_personales"</span><span class="json-punc">: [</span><span class="json-str">"Autodidacta"</span><span class="json-punc">, </span><span class="json-str">"Pensamiento lógico"</span><span class="json-punc">, </span><span class="json-str">"Adaptabilidad"</span><span class="json-punc">, </span><span class="json-str">"Trabajo en equipo"</span><span class="json-punc">, </span><span class="json-str">"Organización"</span><span class="json-punc">]</span><br>
+          <span class="json-punc">}</span>
+        </div>
+
+        <h2 style="margin-top:34px;">Idiomas</h2>
+        <div class="lang-row">
+          <div>
+            <span class="lang-item"><b>Español</b> — nativo</span>
+            <div class="bar"><div class="bar-fill" style="width:100%;"></div></div>
+          </div>
+          <div>
+            <span class="lang-item"><b>Inglés</b> — básico</span>
+            <div class="bar"><div class="bar-fill" style="width:35%;"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pane-section" id="projects">
+        <h2>Proyectos</h2>
+
+        <div class="entry">
+          <div class="entry-head">
+            <span class="entry-title">DevSolve</span>
+            <span class="entry-date">2024 — presente</span>
+          </div>
+          <p class="entry-sub">Plataforma web para el aprendizaje del lenguaje Java.</p>
+          <ul class="feature-list">
+            <li>Plataforma orientada al aprendizaje de Java.</li>
+            <li>Desarrollo de componentes frontend y backend.</li>
+            <li>Organización de contenido educativo.</li>
+            <li>Enfoque en facilitar el aprendizaje de programación.</li>
+          </ul>
+          <div class="tag-row"><span class="tag">Java</span><span class="tag">Frontend</span><span class="tag">Backend</span></div>
+        </div>
+
+        <div class="entry">
+          <div class="entry-head">
+            <span class="entry-title">ReviewData</span>
+            <span class="entry-date">2024 — presente</span>
+          </div>
+          <p class="entry-sub">Sistema de detección de inconsistencias en información.</p>
+          <ul class="feature-list">
+            <li>Procesamiento y análisis de información.</li>
+            <li>Detección de posibles inconsistencias.</li>
+            <li>Solución orientada a la revisión de datos.</li>
+            <li>Implementación de componentes frontend y backend.</li>
+          </ul>
+          <div class="tag-row"><span class="tag">Datos</span><span class="tag">Frontend</span><span class="tag">Backend</span></div>
+        </div>
+      </section>
+
+      <section class="pane-section" id="experience">
+        <h2>Experiencia</h2>
+        <div class="entry">
+          <div class="entry-head">
+            <span class="entry-title">Registro Civil de Córdoba, Veracruz</span>
+            <span class="entry-date">2023 — 2024</span>
+          </div>
+          <p class="entry-sub">Servicio social — apoyo administrativo</p>
+          <p style="max-width:58ch;">Participé en actividades de apoyo dentro del Registro Civil, desarrollando experiencia en un entorno institucional y administrativo.</p>
+          <ul class="feature-list">
+            <li>Organización de información.</li>
+            <li>Atención y apoyo administrativo.</li>
+            <li>Manejo responsable de documentación.</li>
+            <li>Seguimiento de actividades dentro de un entorno institucional.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="pane-section" id="education">
+        <h2>Educación</h2>
+        <div class="entry">
+          <div class="entry-head">
+            <span class="entry-title">Universidad Veracruzana</span>
+            <span class="entry-date">2024 — presente</span>
+          </div>
+          <p class="entry-sub">Ingeniería de Software — Región Orizaba-Córdoba</p>
+          <p>Actualmente cursando el quinto semestre.</p>
+        </div>
+        <div class="entry">
+          <div class="entry-head">
+            <span class="entry-title">CBTis 47</span>
+            <span class="entry-date">2021 — 2024</span>
+          </div>
+          <p class="entry-sub">Bachillerato — Córdoba, Veracruz</p>
+        </div>
+        <div class="entry">
+          <div class="entry-head">
+            <span class="entry-title">Telesecundaria Guillermo A. Sherwell</span>
+            <span class="entry-date">2018 — 2021</span>
+          </div>
+          <p class="entry-sub">Educación secundaria</p>
+        </div>
+        <div class="entry">
+          <div class="entry-head">
+            <span class="entry-title">Esc. Primaria Miguel Hidalgo y Costilla</span>
+            <span class="entry-date">2012 — 2018</span>
+          </div>
+          <p class="entry-sub">Educación primaria</p>
+        </div>
+      </section>
+
+      <section class="pane-section" id="certifications">
+        <h2>Certificaciones</h2>
+        <div class="entry">
+          <div class="entry-head"><span class="entry-title">Kaggle — Pandas</span></div>
+          <p class="entry-sub">Manejo y análisis de datos con Pandas.</p>
+          <div class="entry-links"><a href="https://github.com/byDiegoRV/kagglePandasDiego" target="_blank" rel="noopener">↗ repositorio de comprobación</a></div>
+        </div>
+        <div class="entry">
+          <div class="entry-head"><span class="entry-title">Kaggle — Python</span></div>
+          <p class="entry-sub">Fundamentos y utilización de Python.</p>
+          <div class="entry-links"><a href="https://github.com/byDiegoRV/kagglepythonDiego" target="_blank" rel="noopener">↗ repositorio de comprobación</a></div>
+        </div>
+        <div class="entry">
+          <div class="entry-head"><span class="entry-title">Internet of Things (IoT)</span></div>
+          <p class="entry-sub">Certificación relacionada con Internet de las Cosas.</p>
+        </div>
+        <div class="entry">
+          <div class="entry-head"><span class="entry-title">Redes</span></div>
+          <p class="entry-sub">Certificación de redes de computadoras — disponible bajo solicitud.</p>
+        </div>
+      </section>
+
+      <section class="pane-section" id="contact">
+        <h2>Contacto</h2>
+        <p>¿Buscas un desarrollador en formación para prácticas o proyectos? Estas son las mejores formas de contactarme:</p>
+        <div class="entry" style="border-left:none;padding-left:0;">
+          <div class="contact-row" style="flex-direction:column;gap:12px;">
+            <a href="mailto:droldanvivanco@gmail.com">✉️ droldanvivanco@gmail.com</a>
+            <a href="tel:+522712317929">📞 271 231 7929</a>
+            <a href="https://github.com/byDiegoRV" target="_blank" rel="noopener">💻 github.com/byDiegoRV</a>
+            <span>📍 Córdoba, Veracruz, México</span>
+          </div>
+        </div>
+      </section>
+
+      <footer class="pane-footer">
+        cv-diego / build: static · desplegado con GitHub + Render
+      </footer>
+    </main>
+  </div>
+
+<script>
+  const files = document.querySelectorAll('.file');
+  const sections = document.querySelectorAll('.pane-section');
+  const crumb = document.getElementById('crumb');
+  const explorer = document.getElementById('explorer');
+  const menuToggle = document.getElementById('menuToggle');
+
+  files.forEach(btn => {
+    btn.addEventListener('click', () => {
+      files.forEach(f => f.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.dataset.target;
+      sections.forEach(s => s.classList.toggle('active', s.id === target));
+      crumb.textContent = btn.textContent.trim();
+      if (window.innerWidth <= 760) {
+        explorer.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+
+  menuToggle.addEventListener('click', () => {
+    const isOpen = explorer.classList.toggle('open');
+    menuToggle.setAttribute('aria-expanded', String(isOpen));
+  });
+</script>
+</body>
+</html>
